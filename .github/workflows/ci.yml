@@ -36,7 +36,7 @@ jobs:
         mvn package
 
   sonarqube:
-    needs: [build, test, package]
+    needs: build
     runs-on: ubuntu-latest
     
     steps:
@@ -69,7 +69,7 @@ jobs:
         projectName: week3-pipeline-assignment
 
   email-report:
-    needs: [build, test, package, sonarqube]
+    needs: [build, sonarqube]
     runs-on: ubuntu-latest
     if: always()  # Run even if previous jobs fail
     
@@ -92,8 +92,6 @@ jobs:
           Author: ${{ github.actor }}
           
           Build: ${{ needs.build.result }}
-          Test: ${{ needs.test.result }}
-          Package: ${{ needs.package.result }}
           SonarQube: ${{ needs.sonarqube.result }}
           
           View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
