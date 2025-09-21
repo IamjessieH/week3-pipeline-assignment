@@ -11,3 +11,6 @@ RUN mvn clean package
 
 EXPOSE 8080
 CMD ["tail", "-f", "/dev/null"]
+
+
+# empty trigger new pipeline
