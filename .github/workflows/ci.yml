@@ -64,8 +64,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        SONAR_PROJECT_KEY: week3-pipeline-assignment-JessieH
-        SONAR_PROJECT_NAME: week3-pipeline-assignment
+      
 
   email-report:
     needs: [build, sonarqube]
