@@ -8,34 +8,37 @@ build:
   stage: build
   image: openjdk:21-jdk-slim
   script:
+    - cd sample_project/bsn-validator
     - apt-get update
     - apt-get install -y maven
     - mvn clean compile
   artifacts:
     paths:
-      - target/
+      - sample_project/bsn-validator/target/
 
 test:
   stage: test
   image: openjdk:21-jdk-slim
   script:
+    - cd sample_project/bsn-validator
     - apt-get update
     - apt-get install -y maven
     - mvn test
   artifacts:
     reports:
-      junit: target/surefire-reports/TEST-*.xml
+      junit: sample_project/bsn-validator/target/surefire-reports/TEST-*.xml
 
 package:
   stage: package
   image: openjdk:21-jdk-slim
   script:
+    - cd sample_project/bsn-validator
     - apt-get update
     - apt-get install -y maven
     - mvn package
   artifacts:
     paths:
-      - target/*.jar
+      - sample_project/bsn-validator/target/*.jar
 
 deploy-dev:
   stage: deploy
@@ -43,6 +46,7 @@ deploy-dev:
   services:
     - docker:dind
   script:
+    - cd sample_project/bsn-validator
     - docker build -t bsn-validator:latest .
     - docker-compose -f docker-compose.dev.yml up -d
   only:
@@ -56,6 +60,7 @@ deploy-test:
   services:
     - docker:dind
   script:
+    - cd sample_project/bsn-validator
     - docker build -t bsn-validator:test .
     - docker-compose -f docker-compose.yml up -d
   only:
@@ -69,6 +74,7 @@ deploy-acc:
   services:
     - docker:dind
   script:
+    - cd sample_project/bsn-validator
     - docker build -t bsn-validator:acc .
     - docker-compose -f docker-compose.acc.yml up -d
   only:
@@ -82,6 +88,7 @@ deploy-prod:
   services:
     - docker:dind
   script:
+    - cd sample_project/bsn-validator
     - docker build -t bsn-validator:prod .
     - docker-compose -f docker-compose.prod.yml up -d
   only:
