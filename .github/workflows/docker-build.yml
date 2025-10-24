@@ -41,7 +41,7 @@ jobs:
       run: mvn clean package
       
     - name: SonarQube Scan
-      run: mvn sonar:sonar -Dsonar.projectKey=bsn-validator -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      run: mvn sonar:sonar -Dsonar.projectKey=week3-pipeline-assignment-JessieH -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         
     - name: Send Email Report
       uses: dawidd6/action-send-mail@v3
