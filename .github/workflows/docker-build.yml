@@ -1,0 +1,150 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Run tests
+      run: mvn test
+      
+  build-and-analyze:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Build with Maven
+      run: mvn clean package
+      
+    - name: SonarQube Scan
+      uses: sonarqube-quality-gate-action@v1.0.1
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+    - name: Send Email Report
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "SonarQube Analysis Results - ${{ github.repository }}"
+        to: ${{ secrets.DEVELOPER_EMAIL }}
+        from: GitHub Actions
+        body: |
+          SonarQube analysis completed for commit ${{ github.sha }}
+          
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          
+          View results at: ${{ secrets.SONAR_HOST_URL }}/dashboard?id=${{ github.repository }}
+        
+    - name: Build Docker image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest .
+        
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        
+    - name: Push to DockerHub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+      
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Deploy to OEGE Development Server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.OEGE_HOST }}
+        username: ${{ secrets.OEGE_USERNAME }}
+        password: ${{ secrets.OEGE_PASSWORD }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          docker stop bsn-validator-dev || true
+          docker rm bsn-validator-dev || true
+          docker run -d --name bsn-validator-dev -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+        
+  deploy-test:
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Deploy to OEGE Test Server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.OEGE_HOST }}
+        username: ${{ secrets.OEGE_USERNAME }}
+        password: ${{ secrets.OEGE_PASSWORD }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          docker stop bsn-validator-test || true
+          docker rm bsn-validator-test || true
+          docker run -d --name bsn-validator-test -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+        
+  deploy-acc:
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.ref == 'refs/heads/release'
+    
+    steps:
+    - name: Deploy to OEGE Acceptance Server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.OEGE_HOST }}
+        username: ${{ secrets.OEGE_USERNAME }}
+        password: ${{ secrets.OEGE_PASSWORD }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          docker stop bsn-validator-acc || true
+          docker rm bsn-validator-acc || true
+          docker run -d --name bsn-validator-acc -p 8082:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+        
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to OEGE Production Server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.OEGE_HOST }}
+        username: ${{ secrets.OEGE_USERNAME }}
+        password: ${{ secrets.OEGE_PASSWORD }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          docker stop bsn-validator-prod || true
+          docker rm bsn-validator-prod || true
+          docker run -d --name bsn-validator-prod -p 8083:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest

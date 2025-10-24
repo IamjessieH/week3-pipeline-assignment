@@ -1,9 +1,0 @@
-version: '3.8'
-
-services:
-  bsn-validator-prod:
-    build: .
-    ports:
-      - "80:8080"
-    environment:
-      - ENV=production

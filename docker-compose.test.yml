@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  bsn-validator-test:
+    image: ${DOCKERHUB_USERNAME}/bsn-validator:latest
+    ports:
+      - "8081:8080"
