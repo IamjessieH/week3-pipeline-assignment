@@ -9,6 +9,7 @@ public class BsnWebService {
         BsnValidator validator = new BsnValidator();
         System.out.println("BSN Validator Service Starting...");
         System.out.println("Service is running on port 8080");
+        System.out.println("Development environment - Test deployment");
         
         while (true) {
             Socket client = server.accept();
