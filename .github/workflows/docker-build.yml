@@ -40,25 +40,6 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
       
-    - name: Send Email Report
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 587
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "SonarQube Analysis Results - ${{ github.repository }}"
-        to: ${{ secrets.DEVELOPER_EMAIL }}
-        from: GitHub Actions
-        body: |
-          SonarQube analysis completed for commit ${{ github.sha }}
-          
-          Repository: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Commit: ${{ github.sha }}
-          
-          View results at: ${{ secrets.SONAR_HOST_URL }}/dashboard?id=${{ github.repository }}
-        
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest .
         
