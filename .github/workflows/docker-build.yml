@@ -40,31 +40,12 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
       
-    - name: SonarQube Scan
-      uses: sonarqube-quality-gate-action@v1.0.1
+    - name: SonarQube Analysis
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=week3-pipeline-assignment -Dsonar.projectName='BSN Validator ci/cd p2 - Jessie H'
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
-    - name: Send Email Report
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 587
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "SonarQube Analysis Results - ${{ github.repository }}"
-        to: ${{ secrets.DEVELOPER_EMAIL }}
-        from: GitHub Actions
-        body: |
-          SonarQube analysis completed for commit ${{ github.sha }}
-          
-          Repository: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Commit: ${{ github.sha }}
-          
-          View results at: ${{ secrets.SONAR_HOST_URL }}/dashboard?id=${{ github.repository }}
-        
+        SONAR_HOST_URL: http://oege.ie.hva.nl:9001
+      
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest .
         
@@ -84,16 +65,69 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Development Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
         password: ${{ secrets.OEGE_PASSWORD }}
         script: |
+          echo "=== Pulling image ==="
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          
+          echo "=== Stopping old container ==="
           docker stop bsn-validator-dev || true
+          
+          echo "=== Removing old container ==="
           docker rm bsn-validator-dev || true
+          
+          echo "=== Starting new container ==="
           docker run -d --name bsn-validator-dev -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          
+          echo "=== Waiting 5 seconds ==="
+          sleep 5
+          
+          echo "=== Checking container status ==="
+          docker ps -a | grep bsn-validator
+          
+          echo "=== Container logs ==="
+          docker logs bsn-validator-dev || true
+          
+          echo "=== Testing from inside server ==="
+          curl http://localhost:8080/validate/123456782 || echo "curl failed"
+    
+    - name: Send Email Notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "Code Analysis Report - BSN Validator"
+        to: ${{ secrets.EMAIL_TO }}
+        from: ${{ secrets.EMAIL_USERNAME }}
+        body: |
+          === CODE ANALYSIS REPORT ===
+          
+          Project: BSN Validator CI/CD Pipeline
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          
+          === SONARQUBE ANALYSIS ===
+          View analysis results: http://oege.ie.hva.nl:9001/dashboard?id=week3-pipeline-assignment
+          
+          === DEPLOYMENT STATUS ===
+          Environment: Development
+          Status: Successfully deployed
+          
+          === TEST RESULTS ===
+          View pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          === RECOMMENDATIONS ===
+          Please review the SonarQube analysis report for any code quality issues.
+          
+          Best regards,
+          CI/CD Pipeline
         
   deploy-test:
     runs-on: ubuntu-latest
@@ -102,7 +136,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Test Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v1
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}

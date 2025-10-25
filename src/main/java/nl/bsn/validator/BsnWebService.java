@@ -1,7 +1,8 @@
+package nl.bsn.validator;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import nl.bsn.validator.BsnValidator;
 
 public class BsnWebService {
     public static void main(String[] args) throws Exception {
@@ -9,6 +10,7 @@ public class BsnWebService {
         BsnValidator validator = new BsnValidator();
         System.out.println("BSN Validator Service Starting...");
         System.out.println("Service is running on port 8080");
+        System.out.println("Development environment - Test deployment");
         
         while (true) {
             Socket client = server.accept();
