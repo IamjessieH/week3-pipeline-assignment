@@ -102,17 +102,32 @@ jobs:
         server_port: 465
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "Deployment to Development - ${{ github.repository }}"
+        subject: "Code Analysis Report - BSN Validator"
         to: ${{ secrets.EMAIL_TO }}
         from: ${{ secrets.EMAIL_USERNAME }}
         body: |
-          Deployment Completed Successfully!
+          === CODE ANALYSIS REPORT ===
           
+          Project: BSN Validator CI/CD Pipeline
           Repository: ${{ github.repository }}
           Branch: ${{ github.ref_name }}
           Commit: ${{ github.sha }}
           
-          View: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          === SONARQUBE ANALYSIS ===
+          View analysis results: https://sonarcloud.io/project/overview?id=week3-pipeline-assignment
+          
+          === DEPLOYMENT STATUS ===
+          Environment: Development
+          Status: Successfully deployed
+          
+          === TEST RESULTS ===
+          View pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          === RECOMMENDATIONS ===
+          Please review the SonarQube analysis report for any code quality issues.
+          
+          Best regards,
+          CI/CD Pipeline
         
   deploy-test:
     runs-on: ubuntu-latest
