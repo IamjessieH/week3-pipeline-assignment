@@ -41,7 +41,7 @@ jobs:
       run: mvn clean package
       
     - name: SonarQube Analysis
-      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=week3-pipeline-assignment -Dsonar.projectName='BSN Validator ci/cd p2 - Jessie H'
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
