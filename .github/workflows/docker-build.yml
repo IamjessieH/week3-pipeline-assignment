@@ -40,6 +40,12 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
       
+    - name: SonarQube Analysis
+      run: mvn sonar:sonar
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: https://sonarcloud.io
+      
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest .
         
@@ -88,6 +94,25 @@ jobs:
           
           echo "=== Testing from inside server ==="
           curl http://localhost:8080/validate/123456782 || echo "curl failed"
+    
+    - name: Send Email Notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "Deployment to Development - ${{ github.repository }}"
+        to: ${{ secrets.EMAIL_TO }}
+        from: ${{ secrets.EMAIL_USERNAME }}
+        body: |
+          Deployment Completed Successfully!
+          
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          
+          View: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         
   deploy-test:
     runs-on: ubuntu-latest
