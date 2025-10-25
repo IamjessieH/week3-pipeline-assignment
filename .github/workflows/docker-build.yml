@@ -59,7 +59,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Development Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
