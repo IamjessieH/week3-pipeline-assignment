@@ -87,7 +87,7 @@ jobs:
           docker logs bsn-validator-dev || true
           
           echo "=== Testing from inside server ==="
-          curl http://localhost:8080/validate/123456782 || echo "curl failed"
+          curl http://localhost:8081/validate/123456782 || echo "curl failed"
         
   deploy-test:
     runs-on: ubuntu-latest
