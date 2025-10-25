@@ -75,7 +75,7 @@ jobs:
           docker rm bsn-validator-dev || true
           
           echo "=== Starting new container ==="
-          docker run -d --name bsn-validator-dev -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
+          docker run -d --name bsn-validator-dev -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
           
           echo "=== Waiting 5 seconds ==="
           sleep 5
@@ -85,6 +85,9 @@ jobs:
           
           echo "=== Container logs ==="
           docker logs bsn-validator-dev || true
+          
+          echo "=== Testing from inside server ==="
+          curl http://localhost:8080/validate/123456782 || echo "curl failed"
         
   deploy-test:
     runs-on: ubuntu-latest
