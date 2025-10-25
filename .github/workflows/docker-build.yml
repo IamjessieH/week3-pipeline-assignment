@@ -44,7 +44,7 @@ jobs:
       run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=week3-pipeline-assignment -Dsonar.projectName='BSN Validator ci/cd p2 - Jessie H'
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_HOST_URL: http://oege.ie.hva.nl:9001
       
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest .
@@ -114,7 +114,7 @@ jobs:
           Commit: ${{ github.sha }}
           
           === SONARQUBE ANALYSIS ===
-          View analysis results: https://sonarcloud.io/project/overview?id=week3-pipeline-assignment
+          View analysis results: http://oege.ie.hva.nl:9001/dashboard?id=week3-pipeline-assignment
           
           === DEPLOYMENT STATUS ===
           Environment: Development
