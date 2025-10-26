@@ -145,6 +145,8 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
           docker stop bsn-validator-test || true
           docker rm bsn-validator-test || true
+          # Kill any process on port 8081 just in case
+          sudo lsof -ti:8081 | xargs sudo kill -9 || true
           docker run -d --name bsn-validator-test -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
         
   deploy-acc:
@@ -163,6 +165,8 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
           docker stop bsn-validator-acc || true
           docker rm bsn-validator-acc || true
+          # Kill any process on port 8082 just in case
+          sudo lsof -ti:8082 | xargs sudo kill -9 || true
           docker run -d --name bsn-validator-acc -p 8082:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
         
   deploy-prod:
@@ -181,4 +185,6 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
           docker stop bsn-validator-prod || true
           docker rm bsn-validator-prod || true
+          # Kill any process on port 8083 just in case
+          sudo lsof -ti:8083 | xargs sudo kill -9 || true
           docker run -d --name bsn-validator-prod -p 8083:8080 ${{ secrets.DOCKERHUB_USERNAME }}/bsn-validator:latest
