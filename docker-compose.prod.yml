@@ -1,7 +1,0 @@
-version: '3.8'
-
-services:
-  bsn-validator-prod:
-    image: ${DOCKERHUB_USERNAME}/bsn-validator:latest
-    ports:
-      - "8083:8080"

@@ -65,7 +65,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Development Server
-      uses: appleboy/ssh-action@v0.1.6
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
@@ -136,7 +136,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Test Server
-      uses: appleboy/ssh-action@v1
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
@@ -154,7 +154,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Acceptance Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
@@ -172,7 +172,7 @@ jobs:
     
     steps:
     - name: Deploy to OEGE Production Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.OEGE_HOST }}
         username: ${{ secrets.OEGE_USERNAME }}
