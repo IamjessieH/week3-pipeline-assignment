@@ -2,7 +2,6 @@ package nl.bsn.validator;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class BsnWebService {
     public static void main(String[] args) throws Exception {
