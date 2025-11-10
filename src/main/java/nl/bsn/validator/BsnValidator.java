@@ -10,6 +10,7 @@ public class BsnValidator {
     private static final int BSN_LENGTH = 9;
 
     /**
+     * 
      * Validates a Dutch Burger Service Number (BSN) using the 11-proef
      * 
      * this has the following validations
